@@ -16,7 +16,9 @@ io.on('connection', (socket) => {
     console.log('Someone clicked Ping!');
     socket.broadcast.emit('pong_event'); 
   });
-
+ socket.on('check_ping', () => {
+    socket.emit('check_pong'); 
+  });
   socket.on('disconnect', () => {
     console.log('A friend disconnected.');
   });
