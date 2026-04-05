@@ -35,7 +35,9 @@ io.on('connection', (socket) => {
   socket.on('i_am_buffering', () => {
     socket.broadcast.emit('force_wait');
   });
-
+  socket.on('buffer_resolved', () => {
+    socket.broadcast.emit('clear_wait');
+  });
   socket.on('disconnect', () => { console.log('A friend disconnected.'); });
 });
 
