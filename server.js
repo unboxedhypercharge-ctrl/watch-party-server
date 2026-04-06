@@ -14,7 +14,10 @@ io.on('connection', (socket) => {
     socket.join(roomId);
     socket.roomId = roomId; 
     if (!rooms[roomId]) {
-      rooms[roomId] = { time: 0, isPlaying: false, speed: 1, subtitle: null, users: 0 };
+      rooms[roomId] = { 
+        videoUrl: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', 
+        time: 0, isPlaying: false, speed: 1, subtitle: null, users: 0 
+      };
     }
     rooms[roomId].users++;
   });
@@ -23,6 +26,15 @@ io.on('connection', (socket) => {
     if (socket.roomId && rooms[socket.roomId]) {
       socket.emit('catch_up', rooms[socket.roomId]);
     }
+  });
+
+  socket.on('change_video', (newVideoUrl) => {
+    if (!socket.roomId) return;
+    rooms[socket.roomId].videoUrl = newVideoUrl;
+    rooms[socket.roomId].time = 0; 
+    rooms[socket.roomId].isPlaying = true;
+    rooms[socket.roomId].subtitle = null; 
+    io.to(socket.roomId).emit('sync_new_video', newVideoUrl);
   });
 
   socket.on('play_video', (currentTime) => {
@@ -53,10 +65,8 @@ io.on('connection', (socket) => {
 
   socket.on('heartbeat_time', (currentTime) => {
     if (!socket.roomId) return;
-    
     if (currentTime > rooms[socket.roomId].time) {
       rooms[socket.roomId].time = currentTime;
-      
       socket.broadcast.to(socket.roomId).emit('host_time', currentTime);
     }
   });
