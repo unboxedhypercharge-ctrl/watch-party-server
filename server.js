@@ -17,7 +17,6 @@ io.on('connection', (socket) => {
       rooms[roomId] = { time: 0, isPlaying: false, speed: 1, subtitle: null, users: 0 };
     }
     rooms[roomId].users++;
-    console.log(`User joined room: ${roomId}. Total users: ${rooms[roomId].users}`);
   });
 
   socket.on('request_catch_up', () => {
@@ -54,8 +53,11 @@ io.on('connection', (socket) => {
 
   socket.on('heartbeat_time', (currentTime) => {
     if (!socket.roomId) return;
+    
     if (currentTime > rooms[socket.roomId].time) {
       rooms[socket.roomId].time = currentTime;
+      
+      socket.broadcast.to(socket.roomId).emit('host_time', currentTime);
     }
   });
 
@@ -76,11 +78,8 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     if (socket.roomId && rooms[socket.roomId]) {
       rooms[socket.roomId].users--;
-      console.log(`User left room: ${socket.roomId}. Users left: ${rooms[socket.roomId].users}`);
-      
       if (rooms[socket.roomId].users <= 0) {
         delete rooms[socket.roomId];
-        console.log(`Room ${socket.roomId} deleted.`);
       }
     }
   });
