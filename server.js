@@ -19,18 +19,18 @@ socket.on('request_catch_up', () => {
   socket.on('play_video', (currentTime) => {
     roomState.time = currentTime;
     roomState.isPlaying = true;
-    socket.broadcast.emit('sync_play', currentTime);
+    io.emit('sync_play', currentTime); 
   });
 
   socket.on('pause_video', (currentTime) => {
     roomState.time = currentTime;
     roomState.isPlaying = false;
-    socket.broadcast.emit('sync_pause', currentTime);
+    io.emit('sync_pause', currentTime);
   });
 
   socket.on('seek_video', (currentTime) => {
     roomState.time = currentTime;
-    socket.broadcast.emit('sync_seek', currentTime);
+    io.emit('sync_seek', currentTime);
   });
 
   socket.on('i_am_buffering', () => {
