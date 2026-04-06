@@ -3,23 +3,21 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, { cors: { origin: "*" } });
 
-let roomState = {
-  time: 0,
-  isPlaying: false
-};
+let roomState = { time: 0, isPlaying: false, speed: 1 };
 
 app.get('/', (req, res) => { res.send('Watch Party Server is Awake!'); });
 
 io.on('connection', (socket) => {
   console.log('A friend connected!');
 
-socket.on('request_catch_up', () => {
-  socket.emit('catch_up', roomState);
-});
+  socket.on('request_catch_up', () => {
+    socket.emit('catch_up', roomState);
+  });
+
   socket.on('play_video', (currentTime) => {
     roomState.time = currentTime;
     roomState.isPlaying = true;
-    io.emit('sync_play', currentTime); 
+    io.emit('sync_play', currentTime);
   });
 
   socket.on('pause_video', (currentTime) => {
@@ -33,12 +31,13 @@ socket.on('request_catch_up', () => {
     io.emit('sync_seek', currentTime);
   });
 
-  socket.on('i_am_buffering', () => {
-    socket.broadcast.emit('force_wait');
+  socket.on('change_speed', (newSpeed) => {
+    roomState.speed = newSpeed;
+    io.emit('sync_speed', newSpeed);
   });
-  socket.on('buffer_resolved', () => {
-    socket.broadcast.emit('clear_wait');
-  });
+
+  socket.on('i_am_buffering', () => { io.emit('force_wait'); });
+  socket.on('buffer_resolved', () => { io.emit('clear_wait'); });
   socket.on('disconnect', () => { console.log('A friend disconnected.'); });
 });
 
