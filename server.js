@@ -36,8 +36,14 @@ io.on('connection', (socket) => {
     io.emit('sync_speed', newSpeed);
   });
 
+  socket.on('heartbeat_time', (currentTime) => {
+    if (currentTime > roomState.time) {
+      roomState.time = currentTime;
+    }
+  });
+
   socket.on('upload_subtitle', (vttText) => {
-    roomState.subtitle = vttText;
+    roomState.subtitle = vttText; 
     io.emit('sync_subtitle', vttText); 
   });
 
