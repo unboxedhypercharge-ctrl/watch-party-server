@@ -52,6 +52,12 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => { console.log('A friend disconnected.'); });
 });
 
+setInterval(() => {
+  if (roomState.isPlaying) {
+    io.emit('auto_correction', roomState.time);
+  }
+}, 2000);
+
 const listener = http.listen(process.env.PORT || 3000, () => {
   console.log('Server listening on port ' + listener.address().port);
 });
