@@ -3,7 +3,7 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http, { cors: { origin: "*" } });
 
-let roomState = { time: 0, isPlaying: false, speed: 1 };
+let roomState = { time: 0, isPlaying: false, speed: 1, subtitle: null };
 
 app.get('/', (req, res) => { res.send('Watch Party Server is Awake!'); });
 
@@ -34,6 +34,11 @@ io.on('connection', (socket) => {
   socket.on('change_speed', (newSpeed) => {
     roomState.speed = newSpeed;
     io.emit('sync_speed', newSpeed);
+  });
+
+  socket.on('upload_subtitle', (vttText) => {
+    roomState.subtitle = vttText;
+    io.emit('sync_subtitle', vttText); 
   });
 
   socket.on('i_am_buffering', () => { io.emit('force_wait'); });
