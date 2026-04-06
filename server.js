@@ -13,8 +13,9 @@ app.get('/', (req, res) => { res.send('Watch Party Server is Awake!'); });
 io.on('connection', (socket) => {
   console.log('A friend connected!');
 
+socket.on('request_catch_up', () => {
   socket.emit('catch_up', roomState);
-
+});
   socket.on('play_video', (currentTime) => {
     roomState.time = currentTime;
     roomState.isPlaying = true;
